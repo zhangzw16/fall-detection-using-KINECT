@@ -17,18 +17,18 @@ Note： 文中的方法使用的是Kinect SDK的深度视频流，而没有使�
     * 物体质心的高度（Z-cent）
     * 地面上的38cm以下的物体的元素的个数（Z_pg）
 
-    随后可以通过公式算出V_s![avatar](../imgs/VerticalState.jpg)
+    随后可以通过公式算出V_s![avatar](../imgs/VerticalState.jpg){:height="50%" width="50%"}
     其中k_pg是通过训练数据得出的（所有样本Z_pg的平均值）
 
 2. 第一阶段 - 地面上事件划分
 
     首先将垂直状态时间序列进行均值滤波（窗口大小为半秒）得到平滑后的信号V_arg(i)。随后进行下面的步骤来分割地面上的事件
 
-    ![avatar](../imgs/segmentOnGroundEvent.jpg)
+    ![avatar](../imgs/segmentOnGroundEvent.jpg){:height="50%" width="50%"}
 
     其中f_rate为帧速率，T_trig为从训练数据得到的阈值。另外为了实现实时的摔倒检测，如果地面时间的结束没有在开始后的四秒内检测到，则标记t_fend并且开始计算摔倒的可能性。
 
-    ![avatar](../imgs/segmentExample.jpg)
+    ![avatar](../imgs/segmentExample.jpg){:height="50%" width="50%"}
 
 3. 第二阶段 - 地面上事件特征提取
 
