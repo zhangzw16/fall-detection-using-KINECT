@@ -8,6 +8,7 @@
 #include <strsafe.h>
 #include "resource.h"
 #include "BodyBasics.h"
+#include <iostream>
 
 static const float c_JointThickness = 3.0f;
 static const float c_TrackedBoneThickness = 6.0f;
@@ -354,6 +355,8 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
                         {
                             for (int j = 0; j < _countof(joints); ++j)
                             {
+								std::cout << i << "th body >> " << j << "th joint >> " << "X: " << joints[i].Position.X <<
+									" Y: " << joints[i].Position.Y << std::endl;
                                 jointPoints[j] = BodyToScreen(joints[j].Position, width, height);
                             }
 
