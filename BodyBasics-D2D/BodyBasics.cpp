@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <chrono>
 
 static const float c_JointThickness = 3.0f;
 static const float c_TrackedBoneThickness = 6.0f;
@@ -328,6 +329,14 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 
         if (SUCCEEDED(hr) && m_pRenderTarget && m_pCoordinateMapper)
         {
+			//File where to write the XYZ coords pf the skeleton joints.
+			std::ofstream dataFile;
+			//dataFile.open("joints_data_standing.txt", std::ofstream::out | std::ofstream::app);
+			dataFile.open("real_time_joints_data.txt", std::ofstream::out | std::ofstream::app);
+			if (!dataFile) { //create file if not exists
+				dataFile.open("joints_data.txt", std::ofstream::out, std::ofstream::trunc);
+			}
+
             m_pRenderTarget->BeginDraw();
             m_pRenderTarget->Clear();
 
@@ -366,7 +375,7 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 								fp.close();
 
 								if (num_frames % 3 == 0) {
-									/*
+								
 									const CameraSpacePoint& spineBasePos = joints[JointType_SpineBase].Position;
 									const CameraSpacePoint& spineMidPos = joints[JointType_SpineMid].Position;
 									const CameraSpacePoint& neckPos = joints[JointType_Neck].Position;
@@ -464,7 +473,6 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 										//frame timestamp
 										dataFile << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() << "\n";
 									}
-									*/
 
 								}
 
@@ -480,6 +488,8 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
                     }
                 }
             }
+
+			dataFile.close();
 
             hr = m_pRenderTarget->EndDraw();
 
