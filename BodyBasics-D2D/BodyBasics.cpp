@@ -12,6 +12,12 @@
 #include <fstream>
 #include <string>
 #include <chrono>
+#include <math.h>
+
+#define PI 3.14159265
+#define fmin(a,b) ((a)<(b))?(a):(b)
+
+
 
 static const float c_JointThickness = 3.0f;
 static const float c_TrackedBoneThickness = 6.0f;
@@ -39,7 +45,9 @@ int APIENTRY wWinMain(
 
     CBodyBasics application;
 	remove("C:\\Users\\张宇东\\Desktop\\fall-detection-using-KINECT-master\\BodyBasics-D2D\\x64\\Debug\\out.txt");
-    application.Run(hInstance, nShowCmd);
+	remove("C:\\Users\\张宇东\\Desktop\\real_time_joints_data.txt");
+    remove("C:\\Users\\张宇东\\Desktop\\joints_data.txt");
+	application.Run(hInstance, nShowCmd);
 }
 
 /// <summary>
@@ -332,9 +340,9 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 			//File where to write the XYZ coords pf the skeleton joints.
 			std::ofstream dataFile;
 			//dataFile.open("joints_data_standing.txt", std::ofstream::out | std::ofstream::app);
-			dataFile.open("real_time_joints_data.txt", std::ofstream::out | std::ofstream::app);
+			dataFile.open("C:\\Users\\张宇东\\Desktop\\real_time_joints_data.txt", std::ofstream::out | std::ofstream::app);
 			if (!dataFile) { //create file if not exists
-				dataFile.open("joints_data.txt", std::ofstream::out, std::ofstream::trunc);
+				dataFile.open("C:\\Users\\张宇东\\Desktop\\joints_data.txt", std::ofstream::out, std::ofstream::trunc);
 			}
 
             m_pRenderTarget->BeginDraw();
@@ -369,7 +377,7 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
                             for (int j = 0; j < _countof(joints); ++j)
                             {
 								std::ofstream fp;							
-								fp.open("C:\\Users\\张宇东\\Desktop\\fall-detection-using-KINECT-master\\BodyBasics-D2D\\x64\\Debug\\out.txt", std::ios::app);
+								fp.open("C:\\Users\\张宇东\\Desktop\\out.txt", std::ios::app);
 								fp << i << "th body >> " << j << "th joint >> " << "X: " << joints[i].Position.X <<
 									" Y: " << joints[i].Position.Y << std::endl;
 								fp.close();
@@ -443,7 +451,7 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 									float v = sqrt(pow(spineBasePos.X - ((kneeLeftPos.X + kneeRightPos.X) / 2), 2) + pow(spineBasePos.Y - ((kneeLeftPos.Y + kneeRightPos.Y) / 2), 2) + pow(spineBasePos.Z - ((kneeLeftPos.Z + kneeRightPos.Z) / 2), 2));
 
 									//8 features from body joints
-									float height = headPos.Y - std::fmin(footLeftPos.Y, footRightPos.Y);
+									float height = headPos.Y - fmin(footLeftPos.Y, footRightPos.Y);
 									float leftHipAngle = acos((pow(a, 2) + pow(b, 2) - pow(c, 2)) / (2 * a * b)) * 180 / PI;  //180 - (acos(a/c) *180.0 / PI) - (acos(b/c) *180.0 / PI);
 									float rightHipAngle = acos((pow(e, 2) + pow(d, 2) - pow(f, 2)) / (2 * e * d)) * 180 / PI; // 180 - (acos(d / f) *180.0 / PI) - (acos(e / f) *180.0 / PI);
 									float leftKneeAngle = acos((pow(a, 2) + pow(h, 2) - pow(g, 2)) / (2 * a * h)) * 180 / PI; // 180 - (acos(a / g) *180.0 / PI) - (acos(h / g) *180.0 / PI);
@@ -460,6 +468,7 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 									if (height == height && leftHipAngle == leftHipAngle && rightHipAngle == rightHipAngle && leftKneeAngle == leftKneeAngle
 										&& rightKneeAngle == rightKneeAngle && chestAngle == chestAngle && chestKneeAngle == chestKneeAngle && footRightPos.Y == footRightPos.Y
 										&& footLeftPos.Y == footLeftPos.Y) {
+										
 										dataFile << height << "\n";
 										dataFile << leftHipAngle << "\n";
 										dataFile << rightHipAngle << "\n";
@@ -472,6 +481,21 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 										dataFile << footLeftPos.Y << "\n";
 										//frame timestamp
 										dataFile << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() << "\n";
+										
+										/*dataFile << "height:" <<height << "\n";
+										dataFile << "leftHipAngle" << leftHipAngle << "\n";
+										dataFile << "rightHipAngle" << rightHipAngle << "\n";
+										dataFile << "leftKneeAngle" << leftKneeAngle << "\n";
+										dataFile << "rightKneeAngle" << rightKneeAngle << "\n";
+										dataFile << "chestAngle" << chestAngle << "\n";
+										dataFile << "chestKneeAngle" << chestKneeAngle << "\n";
+										//these two are only for the real time application!
+										dataFile << "footRightPos" << footRightPos.Y << "\n";
+										dataFile << "footLeftPos" << footLeftPos.Y << "\n";
+										//frame timestamp
+										dataFile << "chrono" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() << "\n";
+										*/
+
 									}
 
 								}
