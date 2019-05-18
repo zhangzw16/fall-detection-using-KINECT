@@ -9,6 +9,8 @@
 #include "resource.h"
 #include "BodyBasics.h"
 #include <iostream>
+#include <fstream>
+#include <string>
 
 static const float c_JointThickness = 3.0f;
 static const float c_TrackedBoneThickness = 6.0f;
@@ -355,8 +357,17 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
                         {
                             for (int j = 0; j < _countof(joints); ++j)
                             {
+
+								std::streambuf* backup;
+								std::ifstream fin;
+								fin.open("out.txt");
+								backup = std::cin.rdbuf();   // back up cin's streambuf  
+								std::cin.rdbuf(fin.rdbuf()); // assign file's streambuf to cin  
+
 								std::cout << i << "th body >> " << j << "th joint >> " << "X: " << joints[i].Position.X <<
 									" Y: " << joints[i].Position.Y << std::endl;
+								// ... cin will read from file  
+								std::cin.rdbuf(backup);     // restore cin's original streambuf  
                                 jointPoints[j] = BodyToScreen(joints[j].Position, width, height);
                             }
 
