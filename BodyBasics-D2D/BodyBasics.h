@@ -98,6 +98,13 @@ private:
     /// </summary>
     void                    ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies);
 
+	/// <summary>
+	/// Compute and output file
+	/// <param name="numFrames">number of frame</param>
+	/// <param name="pJoints">joint data</param>
+	/// <param name="dataFlie">output file</param>
+	void					FallDetect(const INT64 numFrames, const Joint* pJoints, std::ofstream &dataFile);
+
     /// <summary>
     /// Set the status bar message
     /// </summary>
