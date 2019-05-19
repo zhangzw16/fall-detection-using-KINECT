@@ -100,10 +100,12 @@ private:
 
 	/// <summary>
 	/// Compute and output file
+	/// </summary>
 	/// <param name="numFrames">number of frame</param>
 	/// <param name="pJoints">joint data</param>
 	/// <param name="dataFlie">output file</param>
-	void					FallDetect(const INT64 numFrames, const Joint* pJoints, std::ofstream &dataFile);
+	/// <param name="method">choose which method to use</param>
+	void					FallDetect(const INT64 numFrames, const Joint* pJoints, std::ofstream &dataFile, const int method);
 
     /// <summary>
     /// Set the status bar message
