@@ -12,11 +12,12 @@
 #include <fstream>
 #include <string>
 #include <chrono>
+#include <math.h>
 
 #define PI 3.14159265
 #define fmin(a,b) ((a)<(b))?(a):(b)
 
-static char* filePath = "C:\\Users\\张宇东\\Desktop\\fall-detection-using-KINECT-master\\BodyBasics-D2D\\x64\\Debug\\";
+static char* filePath = "C:\\Users\\张宇东\\Desktop\\";
 static const float c_JointThickness = 3.0f;
 static const float c_TrackedBoneThickness = 6.0f;
 static const float c_InferredBoneThickness = 1.0f;
@@ -42,8 +43,9 @@ int APIENTRY wWinMain(
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     CBodyBasics application;
-	remove(std::strcat(filePath, "out.txt"));
-    application.Run(hInstance, nShowCmd);
+	remove(std::strcat(filePath, "real_time_joints_data.txt"));
+    remove(std::strcat(filePath, "joints_data.txt"));
+	application.Run(hInstance, nShowCmd);
 }
 
 /// <summary>
@@ -336,9 +338,9 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 			//File where to write the XYZ coords pf the skeleton joints.
 			std::ofstream dataFile;
 			//dataFile.open("joints_data_standing.txt", std::ofstream::out | std::ofstream::app);
-			dataFile.open("real_time_joints_data.txt", std::ofstream::out | std::ofstream::app);
+			dataFile.open("C:\\Users\\张宇东\\Desktop\\real_time_joints_data.txt", std::ofstream::out | std::ofstream::app);
 			if (!dataFile) { //create file if not exists
-				dataFile.open("joints_data.txt", std::ofstream::out, std::ofstream::trunc);
+				dataFile.open("C:\\Users\\张宇东\\Desktop\\joints_data.txt", std::ofstream::out, std::ofstream::trunc);
 			}
 
             m_pRenderTarget->BeginDraw();
