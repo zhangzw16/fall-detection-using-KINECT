@@ -12,18 +12,21 @@
 #include <fstream>
 #include <string>
 #include <chrono>
-#include <math.h>
+#include <string.h>
+#include <sstream>
 
 #define PI 3.14159265
-#define fmin(a,b) ((a)<(b))?(a):(b)
 
-static char* filePath = "C:\\Users\\张宇东\\Desktop\\";
+static std::string filePath = "C:\\Users\\DELL\\Desktop\\大三下\\媒体与认知\\作业\\大作业\\Posture-and-Fall-Detection-System-Using-3D-Motion-Sensors-master\\";
 static const float c_JointThickness = 3.0f;
 static const float c_TrackedBoneThickness = 6.0f;
 static const float c_InferredBoneThickness = 1.0f;
 static const float c_HandSize = 30.0f;
+static int* peopleFrame = {0, 1,
 static int numFrames = 0;
 static const int method = 1; // 1 for the github code,  2 for trigger mode
+//File where to write the XYZ coords pf the skeleton joints.
+std::ofstream* dataFileVec = new std::ofstream[6];
 
 /// <summary>
 /// Entry point for the application
@@ -44,8 +47,6 @@ int APIENTRY wWinMain(
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     CBodyBasics application;
-	remove(std::strcat(filePath, "real_time_joints_data.txt"));
-    remove(std::strcat(filePath, "joints_data.txt"));
 	application.Run(hInstance, nShowCmd);
 }
 
@@ -336,12 +337,13 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 
         if (SUCCEEDED(hr) && m_pRenderTarget && m_pCoordinateMapper)
         {
-			//File where to write the XYZ coords pf the skeleton joints.
-			std::ofstream dataFile;
-			//dataFile.open("joints_data_standing.txt", std::ofstream::out | std::ofstream::app);
-			dataFile.open("C:\\Users\\张宇东\\Desktop\\real_time_joints_data.txt", std::ofstream::out | std::ofstream::app);
-			if (!dataFile) { //create file if not exists
-				dataFile.open("C:\\Users\\张宇东\\Desktop\\joints_data.txt", std::ofstream::out, std::ofstream::trunc);
+			for (int i = 0; i < 6; i++) {
+				std::ostringstream fileName;
+				fileName << filePath << "real_time_joints_data_" << i << ".txt";
+				dataFileVec[i].open(fileName.str().c_str(), std::ofstream::out | std::ofstream::app);
+				if (!dataFileVec[i]) { //create file if not exists
+					dataFileVec[i].open(fileName.str().c_str(), std::ofstream::out, std::ofstream::trunc);
+				}
 			}
 
             m_pRenderTarget->BeginDraw();
@@ -354,6 +356,7 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 
             for (int i = 0; i < nBodyCount; ++i)
             {
+
                 IBody* pBody = ppBodies[i];
                 if (pBody)
                 {
@@ -373,8 +376,9 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
                         hr = pBody->GetJoints(_countof(joints), joints);
                         if (SUCCEEDED(hr))
                         {
+
 							// !!Fall Detect here!!
-							FallDetect(numFrames, joints, dataFile, method);
+							FallDetect(numFrames, joints, dataFileVec[i], method);
                             for (int j = 0; j < _countof(joints); ++j)
                             {
                                 jointPoints[j] = BodyToScreen(joints[j].Position, width, height);
@@ -389,8 +393,10 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
                     }
                 }
             }
-
-			dataFile.close();
+			
+			for (int i = 0; i < 6; i++) {
+				dataFileVec[i].close();
+			}
 
             hr = m_pRenderTarget->EndDraw();
 
@@ -441,9 +447,9 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 /// <param name="pJoints">joint data</param>
 /// <param name="dataFlie">output file</param>
 /// <param name="method">choose which method to use</param>
-void CBodyBasics::FallDetect(const INT64 numFrames, const Joint* pJoints, std::ofstream& dataFile, const int method)
+void CBodyBasics::FallDetect(const INT64 numFrames, const Joint* pJoints, std::ofstream& dataFile, const int method = 1)
 {
-	if (method == 1) { // github code method
+	if (method == 1) {
 		if (numFrames % 3 == 0) {
 			const Joint* joints = pJoints;
 			const CameraSpacePoint& spineBasePos = joints[JointType_SpineBase].Position;
@@ -513,7 +519,8 @@ void CBodyBasics::FallDetect(const INT64 numFrames, const Joint* pJoints, std::o
 			float v = sqrt(pow(spineBasePos.X - ((kneeLeftPos.X + kneeRightPos.X) / 2), 2) + pow(spineBasePos.Y - ((kneeLeftPos.Y + kneeRightPos.Y) / 2), 2) + pow(spineBasePos.Z - ((kneeLeftPos.Z + kneeRightPos.Z) / 2), 2));
 
 			//8 features from body joints
-			float height = headPos.Y - fmin(footLeftPos.Y, footRightPos.Y);
+			float height = headPos.Y - footLeftPos.Y;
+			//float height = headPos.Y - fmin(footLeftPos.Y, footRightPos.Y);
 			float leftHipAngle = acos((pow(a, 2) + pow(b, 2) - pow(c, 2)) / (2 * a * b)) * 180 / PI;  //180 - (acos(a/c) *180.0 / PI) - (acos(b/c) *180.0 / PI);
 			float rightHipAngle = acos((pow(e, 2) + pow(d, 2) - pow(f, 2)) / (2 * e * d)) * 180 / PI; // 180 - (acos(d / f) *180.0 / PI) - (acos(e / f) *180.0 / PI);
 			float leftKneeAngle = acos((pow(a, 2) + pow(h, 2) - pow(g, 2)) / (2 * a * h)) * 180 / PI; // 180 - (acos(a / g) *180.0 / PI) - (acos(h / g) *180.0 / PI);
@@ -543,7 +550,6 @@ void CBodyBasics::FallDetect(const INT64 numFrames, const Joint* pJoints, std::o
 				//frame timestamp
 				dataFile << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() << "\n";
 			}
-
 		}
 	}
 	else if (method == 2) {
