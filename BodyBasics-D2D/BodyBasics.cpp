@@ -22,7 +22,7 @@ static const float c_JointThickness = 3.0f;
 static const float c_TrackedBoneThickness = 6.0f;
 static const float c_InferredBoneThickness = 1.0f;
 static const float c_HandSize = 30.0f;
-static int* peopleFrame = {0, 1,
+
 static int numFrames = 0;
 static const int method = 1; // 1 for the github code,  2 for trigger mode
 //File where to write the XYZ coords pf the skeleton joints.
